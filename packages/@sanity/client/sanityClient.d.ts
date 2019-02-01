@@ -470,6 +470,7 @@ interface BaseClientConfig {
   useCdn?: boolean
   token?: string
   apiHost?: string
+  apiVersion?: string
   ignoreBrowserTokenWarning?: boolean
   withCredentials?: boolean
 

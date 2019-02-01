@@ -1,4 +1,4 @@
-/* eslint-disable strict */
+/* eslint-disable strict, import/no-unassigned-import */
 // (Node 4 compat)
 
 'use strict'
@@ -29,6 +29,7 @@ const projectHost = (projectId) => `https://${projectId || defaultProjectId}.${a
 const clientConfig = {
   apiHost: `https://${apiHost}`,
   projectId: 'bf1942',
+  apiVersion: '1',
   dataset: 'foo',
   useCdn: false,
 }
@@ -119,6 +120,15 @@ test('accepts alias in dataset field', (t) => {
   t.end()
 })
 
+test('throws on future api version dates', (t) => {
+  t.throws(
+    () =>
+      sanityClient({projectId: 'abc123', dataset: 'foo', useCdn: true, apiVersion: '2099-12-13'}),
+    /future.*2099-12-13/
+  )
+  t.end()
+})
+
 test('can use request() for API-relative requests', (t) => {
   nock(projectHost()).get('/v1/ping').reply(200, {pong: true})
 
@@ -129,8 +139,26 @@ test('can use request() for API-relative requests', (t) => {
     .then(t.end)
 })
 
+test('can use request() for API-relative requests (custom api version)', (t) => {
+  nock(projectHost()).get('/v2019-01-29/ping').reply(200, {pong: true})
+
+  getClient({apiVersion: '2019-01-29'})
+    .request({uri: '/ping'})
+    .then((res) => t.equal(res.pong, true))
+    .catch(t.ifError)
+    .then(t.end)
+})
+
 test('can use getUrl() to get API-relative paths', (t) => {
   t.equal(getClient().getUrl('/bar/baz'), `${projectHost()}/v1/bar/baz`)
+  t.end()
+})
+
+test('can use getUrl() to get API-relative paths (custom api version)', (t) => {
+  t.equal(
+    getClient({apiVersion: '2019-01-29'}).getUrl('/bar/baz'),
+    `${projectHost()}/v2019-01-29/bar/baz`
+  )
   t.end()
 })
 
@@ -162,6 +190,26 @@ test('can request list of projects', (t) => {
     .reply(200, [{projectId: 'foo'}, {projectId: 'bar'}])
 
   const client = sanityClient({useProjectHostname: false, apiHost: `https://${apiHost}`})
+  client.projects
+    .list()
+    .then((projects) => {
+      t.equal(projects.length, 2, 'should have two projects')
+      t.equal(projects[0].projectId, 'foo', 'should have project id')
+    })
+    .catch(t.ifError)
+    .then(t.end)
+})
+
+test('can request list of projects (custom api version)', (t) => {
+  nock(`https://${apiHost}`)
+    .get('/v2019-01-29/projects')
+    .reply(200, [{projectId: 'foo'}, {projectId: 'bar'}])
+
+  const client = sanityClient({
+    useProjectHostname: false,
+    apiHost: `https://${apiHost}`,
+    apiVersion: '2019-01-29',
+  })
   client.projects
     .list()
     .then((projects) => {
@@ -667,7 +715,7 @@ test('uses GET for queries below limit', (t) => {
   }
 
   // Again, just... don't do this.
-  const query = `*[is "beer" && (${clause.join(' || ')})]`
+  const query = `*[_type == "beer" && (${clause.join(' || ')})]`
 
   nock(projectHost())
     .get('/v1/data/query/foo')
@@ -698,7 +746,7 @@ test('uses POST for long queries', (t) => {
   }
 
   // Again, just... don't do this.
-  const query = `*[is "beer" && (${clause.join(' || ')})]`
+  const query = `*[_type == "beer" && (${clause.join(' || ')})]`
 
   nock(projectHost())
     .filteringRequestBody(/.*/, '*')
