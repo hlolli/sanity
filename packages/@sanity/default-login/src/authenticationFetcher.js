@@ -1,11 +1,11 @@
-import client from 'part:@sanity/base/client'
 import getProviders from './util/getProviders'
+import {versionedClient} from './versionedClient'
 
 export default {
   getProviders,
 
   getCurrentUser: () =>
-    client
+    versionedClient
       .request({
         uri: '/users/me',
         withCredentials: true,

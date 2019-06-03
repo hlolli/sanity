@@ -1,14 +1,14 @@
-import client from 'part:@sanity/base/client'
 import {defer, partition, merge, of, throwError, asyncScheduler, Observable} from 'rxjs'
 import {mergeMap, throttleTime, share, switchMapTo, take} from 'rxjs/operators'
-
+import {versionedClient} from '../../client/versionedClient'
 import {ReconnectEvent, WelcomeEvent} from './types'
 
-const fetch = (query: string, params: {}) => defer(() => client.observable.fetch(query, params))
+const fetch = (query: string, params: Record<string, unknown>) =>
+  defer(() => versionedClient.observable.fetch(query, params))
 
-const listen = (query: string, params: {}) =>
+const listen = (query: string, params: Record<string, unknown>) =>
   defer(() =>
-    client.listen(query, params, {
+    versionedClient.listen(query, params, {
       events: ['welcome', 'mutation', 'reconnect'],
       includeResult: false,
       visibility: 'query',

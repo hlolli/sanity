@@ -1,5 +1,5 @@
-import client from 'part:@sanity/base/client'
 import {omit} from 'lodash'
+import {versionedClient} from '../../../../client/versionedClient'
 import {OperationArgs} from '../../types'
 
 import {isLiveEditEnabled} from '../utils/isLiveEditEnabled'
@@ -15,7 +15,7 @@ export const publish = {
     return false
   },
   execute: ({idPair, snapshots}: OperationArgs) => {
-    const tx = client.transaction()
+    const tx = versionedClient.transaction()
 
     if (snapshots.published) {
       // If it exists already, we only want to update it if the revision on the remote server
