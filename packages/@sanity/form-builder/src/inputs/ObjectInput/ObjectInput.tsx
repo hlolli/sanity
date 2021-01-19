@@ -229,7 +229,7 @@ export default class ObjectInput extends React.PureComponent<ObjectInputProps> {
 
     if (level === 0) {
       return (
-        <div className={styles.root}>
+        <div>
           <div className={styles.fieldWrapper}>
             {renderedFields}
             {renderedUnknownFields}
@@ -243,8 +243,8 @@ export default class ObjectInput extends React.PureComponent<ObjectInputProps> {
     const columns = type.options && type.options.columns
     const isCollapsed = !isExpanded && collapsibleOpts.collapsed
     return (
-      <div className={styles.root}>
-        <Fieldset
+      <div>
+        <FormFieldSet
           level={level}
           legend={type.title}
           description={type.description}
@@ -258,7 +258,7 @@ export default class ObjectInput extends React.PureComponent<ObjectInputProps> {
         >
           {renderedFields}
           {renderedUnknownFields}
-        </Fieldset>
+        </FormFieldSet>
       </div>
     )
   }
