@@ -1,11 +1,12 @@
 import React from 'react'
 import {Marker, ObjectSchemaTypeWithOptions, Path} from '@sanity/types'
 import {FormFieldPresence} from '@sanity/base/presence'
-import Fieldset from 'part:@sanity/components/fieldsets/default'
+import {FormFieldSet} from '@sanity/base/components'
+
 import PatchEvent, {set, setIfMissing, unset} from '../../PatchEvent'
 import isEmpty from '../../utils/isEmpty'
 import Field from './Field'
-import UnknownFields from './UnknownFields'
+import {UnknownFields} from './UnknownFields'
 import fieldStyles from './styles/Field.css'
 
 import styles from './styles/ObjectInput.css'
@@ -56,9 +57,7 @@ type ObjectInputProps = {
 export default class ObjectInput extends React.PureComponent<ObjectInputProps> {
   _firstField: any
   static defaultProps = {
-    onChange() {
-      // not implemented
-    },
+    onChange: () => undefined,
     level: 0,
     focusPath: [],
     isRoot: false,
@@ -154,22 +153,23 @@ export default class ObjectInput extends React.PureComponent<ObjectInputProps> {
     const isCollapsed = !isExpanded && collapsibleOpts.collapsed
     return (
       <div key={fieldset.name} className={fieldStyles.root}>
-        <Fieldset
-          legend={fieldset.title}
+        <FormFieldSet
+          title={fieldset.title}
           description={fieldset.description}
           level={level + 1}
           columns={columns}
-          isCollapsible={collapsibleOpts.collapsible}
-          isCollapsed={isCollapsed}
-          presence={childPresence}
+          collapsible={collapsibleOpts.collapsible}
+          collapsed={isCollapsed}
+          __unstable_presence={childPresence}
           onFocus={onFocus}
-          changeIndicator={false}
-          markers={childMarkers}
+          __unstable_changeIndicator={false}
+          __unstable_markers={childMarkers}
+          tabIndex={0}
         >
           {fieldset.fields.map((field, fieldIndex) => {
             return this.renderField(field, level + 2, fieldsetIndex + fieldIndex)
           })}
-        </Fieldset>
+        </FormFieldSet>
       </div>
     )
   }
@@ -229,11 +229,9 @@ export default class ObjectInput extends React.PureComponent<ObjectInputProps> {
 
     if (level === 0) {
       return (
-        <div>
-          <div className={styles.fieldWrapper}>
-            {renderedFields}
-            {renderedUnknownFields}
-          </div>
+        <div className={styles.fieldWrapper}>
+          {renderedFields}
+          {renderedUnknownFields}
         </div>
       )
     }
@@ -243,23 +241,22 @@ export default class ObjectInput extends React.PureComponent<ObjectInputProps> {
     const columns = type.options && type.options.columns
     const isCollapsed = !isExpanded && collapsibleOpts.collapsed
     return (
-      <div>
-        <FormFieldSet
-          level={level}
-          legend={type.title}
-          description={type.description}
-          columns={columns}
-          isCollapsible={collapsibleOpts.collapsible}
-          isCollapsed={isCollapsed}
-          markers={markers}
-          presence={presence}
-          onFocus={onFocus}
-          changeIndicator={false}
-        >
-          {renderedFields}
-          {renderedUnknownFields}
-        </FormFieldSet>
-      </div>
+      <FormFieldSet
+        level={level}
+        title={type.title}
+        description={type.description}
+        columns={columns}
+        collapsible={collapsibleOpts.collapsible}
+        collapsed={isCollapsed}
+        __unstable_presence={presence}
+        onFocus={onFocus}
+        __unstable_changeIndicator={false}
+        __unstable_markers={markers}
+        tabIndex={0}
+      >
+        {renderedFields}
+        {renderedUnknownFields}
+      </FormFieldSet>
     )
   }
 }
