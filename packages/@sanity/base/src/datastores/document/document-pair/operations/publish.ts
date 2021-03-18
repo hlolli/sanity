@@ -17,15 +17,7 @@ export const publish = {
   execute: ({idPair, snapshots}: OperationArgs) => {
     const tx = client.transaction()
 
-    if (!snapshots.published) {
-      // If the document has not been published, we want to create it - if it suddenly exists
-      // before being created, we don't want to overwrite if, instead we want to yield an error
-      tx.create({
-        ...omit(snapshots.draft, '_updatedAt'),
-        _id: idPair.publishedId,
-        _type: snapshots.draft._type,
-      })
-    } else {
+    if (snapshots.published) {
       // If it exists already, we only want to update it if the revision on the remote server
       // matches what our local state thinks it's at
       tx.patch(idPair.publishedId, {
@@ -33,6 +25,14 @@ export const publish = {
         unset: ['_revision_lock_pseudo_field_'],
         ifRevisionID: snapshots.published._rev,
       }).createOrReplace({
+        ...omit(snapshots.draft, '_updatedAt'),
+        _id: idPair.publishedId,
+        _type: snapshots.draft._type,
+      })
+    } else {
+      // If the document has not been published, we want to create it - if it suddenly exists
+      // before being created, we don't want to overwrite if, instead we want to yield an error
+      tx.create({
         ...omit(snapshots.draft, '_updatedAt'),
         _id: idPair.publishedId,
         _type: snapshots.draft._type,
