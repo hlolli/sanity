@@ -466,7 +466,7 @@ export class Transaction {
   reset(): this
 }
 
-interface BaseClientConfig {
+export interface BaseClientConfig {
   useCdn?: boolean
   token?: string
   apiHost?: string
@@ -495,13 +495,13 @@ interface BaseClientConfig {
   requester?: GetItRequester
 }
 
-type ProjectlessClientConfig = BaseClientConfig & {
+export type ProjectlessClientConfig = BaseClientConfig & {
   useProjectHostname: false
   projectId?: string
   dataset?: string
 }
 
-type ProjectClientConfig = BaseClientConfig & {
+export type ProjectClientConfig = BaseClientConfig & {
   useProjectHostname?: true
   projectId: string
   dataset?: string
